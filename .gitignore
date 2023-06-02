@@ -1,0 +1,6 @@
+# local / personalization
+config.local.mk
+
+# Temporary / downloaded files
+tmp/
+
