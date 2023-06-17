@@ -10,5 +10,14 @@ ifeq ($(strip $(resource_dir)),)
 $(error Invalid resource: '$(resource_dir)' (please specify it as first argument))
 endif
 
+# default target
+.PHONY: $(resource_dir) $(resource_dir)/
+ifeq ($(MAKECMDGOALS),)
+$(resource_dir): _
+else
+$(resource_dir):
+	@true
+endif
+
 include $(resource_dir)/rules.mk
 

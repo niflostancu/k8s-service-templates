@@ -2,12 +2,16 @@
 
 define default_kustomize_rules=
 .PHONY: apply show update
-apply: $$(get_assets_reqs)
-	$(kustomize) $(resource_dir)/ | $(kube_apply)
 show: $$(get_assets_reqs)
 	$(kustomize) $(resource_dir)/
+
+apply: $$(get_assets_reqs)
+	$(kustomize) $(resource_dir)/ | $(kube_apply)
 update: VERSION = --latest
 update: apply
+
+clean:
+	rm -rf "$(tmp_dir)"
 
 endef
 
