@@ -14,7 +14,6 @@
 
 set -e
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &>/dev/null && pwd -P )
-TMP_DIR="$(pwd)/tmp"
 
 _fatal() { echo "$@" >&2; exit 2; }
 
@@ -24,7 +23,7 @@ DOWNLOAD=
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--latest) VERSION=__latest ;;
-		--version=) VERSION="${1#*=}"; shift ;;
+		--version=*) VERSION="${1#*=}" ;;
 		--get-url) GET_URL=1 ;;
 		--download) DOWNLOAD=1 ;;
 		-*) _fatal "Invalid argument: $1" ;;
@@ -91,7 +90,7 @@ service:$SERVICE:parse_url "$URL"
 
 # check if we need to retrieve the latest version
 _VERSION="$VERSION"
-_VER_CACHE="$TMP_DIR/$FILENAME-ver.txt"
+_VER_CACHE="$FILENAME.version"
 if [[ "$_VERSION" == "__cached" ]]; then
 	_VERSION=
 	if [[ -f "$_VER_CACHE" ]]; then
@@ -110,10 +109,9 @@ else
 fi
 
 if [[ "$DOWNLOAD" == "1" ]]; then
-	mkdir -p "$TMP_DIR"
+	mkdir -p "$(dirname "$FILENAME")"
 	echo "$_VERSION" > "$_VER_CACHE"
-	DEST="$TMP_DIR/$FILENAME"
-	curl --fail --show-error --silent -L -o "$DEST" "$DOWNLOAD_URL"
-	echo "$DEST"
+	curl --fail --show-error --silent -L -o "$FILENAME" "$DOWNLOAD_URL"
+	echo "$FILENAME"
 fi
 
