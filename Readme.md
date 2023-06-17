@@ -77,7 +77,8 @@ workflow:
   mkdir my-k8s-services/ && cd my-k8s-services/
   git init
   git submodule add https://github.com/niflostancu/k8s-service-templates.git base/
-  cp -f base/Makefile base/config.defaults.mk ./
+  echo 'include base/Makefile' > Makefile
+  cp -f base/config.defaults.mk config.local.mk
   ```
 
   Initialize / configure your services:
