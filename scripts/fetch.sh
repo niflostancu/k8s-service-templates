@@ -17,13 +17,15 @@ BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &>/dev/null && pwd -P
 
 _fatal() { echo "$@" >&2; exit 2; }
 
-VERSION=__cached
+VERSION=
+VERSION_FILE=
 GET_URL=
 DOWNLOAD=
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--latest) VERSION=__latest ;;
 		--version=*) VERSION="${1#*=}" ;;
+		--version-file=*) VERSION_FILE="${1#*=}" ;;
 		--get-url) GET_URL=1 ;;
 		--download) DOWNLOAD=1 ;;
 		-*) _fatal "Invalid argument: $1" ;;
@@ -31,8 +33,6 @@ while [[ $# -gt 0 ]]; do
 	esac
 	shift
 done
-
-[[ -n "$VERSION" ]] || _fatal "No version given!"
 
 declare -A SERVICES=(
 	["github.com"]="github"
@@ -90,12 +90,8 @@ service:$SERVICE:parse_url "$URL"
 
 # check if we need to retrieve the latest version
 _VERSION="$VERSION"
-_VER_CACHE="$FILENAME.version"
-if [[ "$_VERSION" == "__cached" ]]; then
-	_VERSION=
-	if [[ -f "$_VER_CACHE" ]]; then
-		_VERSION="$(cat "$_VER_CACHE" | head -1)"
-	fi
+if [[ -z "$_VERSION" && -n "$VERSION_FILE" && -f "$VERSION_FILE" ]]; then
+	_VERSION="$(cat "$VERSION_FILE" | head -1)"
 fi
 if [[ -z "$_VERSION" || "$_VERSION" == "__latest" ]]; then
 	_VERSION=$(service:$SERVICE:get_version "$URL")
@@ -110,8 +106,15 @@ fi
 
 if [[ "$DOWNLOAD" == "1" ]]; then
 	mkdir -p "$(dirname "$FILENAME")"
-	echo "$_VERSION" > "$_VER_CACHE"
 	curl --fail --show-error --silent -L -o "$FILENAME" "$DOWNLOAD_URL"
+	if [[ -n "$VERSION_FILE" ]]; then
+		echo "$_VERSION" > "$VERSION_FILE"
+	fi
 	echo "$FILENAME"
+else
+	if [[ -n "$VERSION_FILE" ]]; then
+		mkdir -p "$(dirname "$VERSION_FILE")"
+		echo "$_VERSION" > "$VERSION_FILE"
+	fi
 fi
 

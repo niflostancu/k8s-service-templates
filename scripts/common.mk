@@ -19,14 +19,6 @@ kubectl_args ?=
 # load user config
 -include $(base_dir)/config.local.mk
 
-# Asset fetcher target + variables
-asset_fetch_args ?=
-_asset_ver_arg ?= $(if $(findstring latest,$(VERSION)),--latest,\
-					$(if $(VERSION),--version=$(VERSION),))
-_asset_fetch_args ?= $(strip $(_asset_ver_arg)) $(asset_fetch_args)
-download_asset = $(asset_fetch_script) $(_asset_fetch_args) --download $(URL) $@
-get_assets_reqs = $(foreach asset,$(ASSETS),$($(asset)))
-
 # first rule => apply
 _: apply
 .FORCE:
@@ -39,5 +31,6 @@ _: apply
 	@echo "tmp_dir = $(tmp_dir)"
 	@$(MAKE) -r -p $(filter-out @debug,$(resource_dir))
 
-include $(base_dir)/scripts/default-rules.mk
+include $(base_dir)/scripts/asset-fetch.mk
+include $(base_dir)/scripts/kustomize.mk
 

@@ -21,3 +21,7 @@ endif
 
 include $(resource_dir)/rules.mk
 
+# finally, evaluate the rules
+$(eval $(asset_fetch_rules))
+$(eval $(kustomize_rules))
+
