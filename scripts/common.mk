@@ -4,7 +4,7 @@
 _mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 scripts_dir := $(patsubst %/,%,$(dir $(_mkfile_path)))
 base_dir := $(patsubst %/,%,$(dir $(scripts_dir)))
-tmp_dir = $(resource_dir)/tmp
+gen_dir = $(resource_dir)/generated
 
 # scripts / binaries
 kubectl ?= kubectl $(kubectl_args)
@@ -28,7 +28,7 @@ _: apply
 .PHONY: @debug
 @debug:
 	@echo "base_dir = $(base_dir)"
-	@echo "tmp_dir = $(tmp_dir)"
+	@echo "gen_dir = $(gen_dir)"
 	@$(MAKE) -r -p $(filter-out @debug,$(resource_dir))
 
 include $(base_dir)/scripts/asset-fetch.mk

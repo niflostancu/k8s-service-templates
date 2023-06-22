@@ -3,4 +3,5 @@ config.local.mk
 
 # Temporary / downloaded files
 tmp/
+generated/
 

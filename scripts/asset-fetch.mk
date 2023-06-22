@@ -8,7 +8,7 @@ FETCH_ASSETS ?=
 asset-version = $(if $($(asset)-ver),$($(asset)-ver),$(VERSION))
 asset-url = $(if $($(asset)-url),$($(asset)-url),$(URL))
 asset-file = $($(asset))
-asset-version-file = $(tmp_dir)/$(asset).version
+asset-version-file = $(gen_dir)/$(asset).version
 
 # prerequisites to put for including the fetched assets
 asset_fetch_reqs = $(foreach asset,$(FETCH_ASSETS),$(asset-file))

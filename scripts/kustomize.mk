@@ -14,7 +14,7 @@ update:
 	$$(MAKE) $(resource_dir) UPDATE=1 apply
 
 clean:
-	rm -rf "$(tmp_dir)"
+	rm -rf "$(gen_dir)"
 
 endef
 

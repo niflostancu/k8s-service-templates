@@ -10,7 +10,7 @@ APPLY_ARGS ?=
 # assets used
 FETCH_ASSETS = cert-manager
 
-cert-manager = $(tmp_dir)/cert-manager.yaml
+cert-manager = $(gen_dir)/cert-manager.yaml
 cert-manager-url = https://github.com/cert-manager/cert-manager/releases/download/{VERSION}/cert-manager.yaml
 #cert-manager-ver = v1.11.0
 
