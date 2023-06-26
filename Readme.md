@@ -87,6 +87,9 @@ workflow:
   ls -l base/services/
   # for each service you wish to include in your repo:
   mkdir -p "services/<service-name>"
-  echo 'include $(base_dir)/services/<service-name>/rules.mk' > "services/<service-name>/rules.mk"
+  echo 'include $(base_rules)' > "services/<service-name>/rules.mk"
   ```
+
+  The `$(base_rules)` makefile variable will resolve to the base `rules.mk`
+  file automatically.
 
