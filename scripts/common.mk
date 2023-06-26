@@ -22,6 +22,8 @@ kubectl_args ?=
 base_resource_dir=$(base_dir)/$(resource_name)
 base_rules=$(base_resource_dir)/rules.mk
 
+VPATH = $(abspath $(resource_dir)) $(base_resource_dir)
+
 # load user config
 -include $(base_dir)/config.local.mk
 
