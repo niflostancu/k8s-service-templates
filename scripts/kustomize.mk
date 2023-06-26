@@ -2,25 +2,32 @@
 
 UPDATE ?=
 
-kustomization-src=kustomization.yaml
-kustomization-file=$(gen_dir)/kustomization.yaml
+kustomize-src ?= kustomization.yaml
 
-kustomization_reqs?=
-kustomization_reqs+=$(kustomization-file) $(asset_fetch_reqs)
+# Files to copy to the generated/ dir
+COPY_FILES ?= $(kustomize-src)
+
+_kustomize_copied ?= $(COPY_FILES:%=$(gen_dir)/%)
+_kustomize_reqs ?= $(asset_fetch_reqs) $(_kustomize_copied)
 
 define kustomize_rules=
 .PHONY: apply show update
-show: $(kustomization_reqs)
+show: $(_kustomize_reqs)
 	$(kustomize) $(gen_dir)/
-apply: $(kustomization_reqs)
+apply: $(_kustomize_reqs)
 	$(kustomize) $(gen_dir)/ | $(kube_apply)
 update:
 	$$(MAKE) $(resource_dir) UPDATE=1 apply
 clean:
 	rm -rf "$(gen_dir)"
+# copy everything inside the generated directory
+$(foreach _file,$(COPY_FILES),$(kustomize_copy_rule))
 
-# Copy everything inside the generated directory
-$(kustomization-file): $(kustomization-src)
+endef
+
+define kustomize_copy_rule=
+$(_file:%=$(gen_dir)/%): $(_file)
+	@mkdir -p "$$(dir $$(abspath $$@))"
 	cp -f "$$<" "$$@"
 
 endef
