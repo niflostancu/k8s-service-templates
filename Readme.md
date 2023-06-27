@@ -25,6 +25,8 @@ List of example services: `cert-manager`, `ingress-nginx`.
 - [`make`](https://www.gnu.org/software/make/),
   [`bash`](https://www.gnu.org/software/bash/), various core utilities;
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/) tool, of course!
+- [`jq`](https://jqlang.github.io/jq/) (used for automated version updates from
+  repositories);
 - [`helm`](https://helm.sh/) (optional, only if you plan to use it with `kustomize`);
 - [Docker](https://docker.com/) (optional, for building any custom images ofc :P)
 
