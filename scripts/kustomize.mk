@@ -11,13 +11,17 @@ _kustomize_copied ?= $(COPY_FILES:%=$(gen_dir)/%)
 _kustomize_reqs ?= $(asset_fetch_reqs) $(_kustomize_copied)
 
 define kustomize_rules=
-.PHONY: apply show update
+.PHONY: apply show update delete
 show: $(_kustomize_reqs)
 	$(kustomize) $(gen_dir)/
 apply: $(_kustomize_reqs)
 	$(kustomize) $(gen_dir)/ | $(kube_apply)
 update:
 	$$(MAKE) $(resource_dir) UPDATE=1 apply
+delete:
+	@read -p "Are you sure you want to delete $(service_name)? [yN] " -n 1 -r; \
+		echo; [ $$$$REPLY = "y" ]
+	$(kubectl) delete -k $(gen_dir)/ | $(kube_apply)
 clean:
 	rm -rf "$(gen_dir)"
 # copy everything inside the generated directory
