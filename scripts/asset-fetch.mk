@@ -40,3 +40,4 @@ $(asset-version-file):
 
 endef
 
+ALL_RULES += $(asset_fetch_rules)

@@ -32,3 +32,4 @@ $(_file:%=$(gen_dir)/%): $(_file)
 
 endef
 
+ALL_RULES += $(kustomize_rules)
