@@ -74,50 +74,50 @@ workflow:
 
 1. Forking / modifying in-place (faster but NOT recommended)
 
-  If you wish to simply manage Kubernetes services with minimal configuration
-  differences from the defaults, choose this options.
-
-  **Hint:** only add configuration lines to the Makefile scripts for
-  straightforward conflict merging!
-
-  ```sh
-  git clone https://github.com/niflostancu/k8s-service-templates.git
-  # recommended: create your own branch
-  git checkout -b personal
-  # don't forget to rebase periodically (& solve conflicts)
-  git rebase master
-  # if you get bored of doing this, check variant #2 below ;)
-  ```
-
-  After cloning, simply edit the desired files (don't forget to create
-  `config.local.mk`) and install your desired services.
+    If you wish to simply manage Kubernetes services with minimal configuration
+    differences from the defaults, choose this options.
+  
+    **Hint:** only add configuration lines to the Makefile scripts for
+    straightforward conflict merging!
+  
+    ```sh
+    git clone https://github.com/niflostancu/k8s-service-templates.git
+    # recommended: create your own branch
+    git checkout -b personal
+    # don't forget to rebase periodically (& solve conflicts)
+    git rebase master
+    # if you get bored of doing this, check variant #2 below ;)
+    ```
+  
+    After cloning, simply edit the desired files (don't forget to create
+    `config.local.mk`) and install your desired services.
 
 2. Using as library / submodule (also check out the [samples](./samples/))
 
-  If you want to have better configurability / flexibility for your cluster
-  services and you wish to also remain in sync with [this] base repository,
-  using it as submodule in a new project is your best choice:
-
-  ```sh
-  # create your new project's repo
-  mkdir my-k8s-services/ && cd my-k8s-services/
-  git init
-  git submodule add https://github.com/niflostancu/k8s-service-templates.git base/
-  # disregard sample & prefer inclusion against symlinks, more portable / syncable ;)
-  echo 'include base/Makefile' > Makefile
-  cp -f base/config.defaults.mk config.local.mk
-  git commit -m 'first commit: start of k8s configuration'
-  ```
-
-  Initialize / configure your services:
-  ```sh
-  # check the base dir for the available services:
-  ls -l base/services/
-  # for each service you wish to include in your repo:
-  mkdir -p "services/<service-name>"
-  echo 'include $(base_rules)' > "services/<service-name>/rules.mk"
-  ```
-
-  The `$(base_rules)` makefile variable will resolve to the base `rules.mk`
-  file automatically.
+    If you want to have better configurability / flexibility for your cluster
+    services and you wish to also remain in sync with [this] base repository,
+    using it as submodule in a new project is your best choice:
+  
+    ```sh
+    # create your new project's repo
+    mkdir my-k8s-services/ && cd my-k8s-services/
+    git init
+    git submodule add https://github.com/niflostancu/k8s-service-templates.git base/
+    # disregard sample & prefer inclusion against symlinks, more portable / syncable ;)
+    echo 'include base/Makefile' > Makefile
+    cp -f base/config.defaults.mk config.local.mk
+    git commit -m 'first commit: start of k8s configuration'
+    ```
+  
+    Initialize / configure your services:
+    ```sh
+    # check the base dir for the available services:
+    ls -l base/services/
+    # for each service you wish to include in your repo:
+    mkdir -p "services/<service-name>"
+    echo 'include $(base_rules)' > "services/<service-name>/rules.mk"
+    ```
+  
+    The `$(base_rules)` makefile variable will resolve to the base `rules.mk`
+    file automatically.
 
