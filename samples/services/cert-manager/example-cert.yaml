@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-cert
+  namespace: default
+spec:
+  secretName: example-cert-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: example-cloudflare
+  commonName: '*.example.com'
+  dnsNames:
+    - "*.example.com"
+    - "example.com"
+

@@ -18,6 +18,8 @@ Overall features:
 - Everything is well documented and designed to be fully customizable
   / extendable (via Makefile inheritance + kustomize overlays)!
 
+List of example services: `cert-manager`, `ingress-nginx`.
+
 ## Requirements
 
 - [`make`](https://www.gnu.org/software/make/),
@@ -28,17 +30,46 @@ Overall features:
 
 This project assumes intermediate Kubernetes experience (+ make & bash).
 
-## Usage
+## Basic Usage
 
-To get started, try out some of the bundled make scripts:
+To get started, try out some of the bundled make scripts (though: **please use
+a staging kubernetes setup**!):
 
 ```sh
+# test kustomization config generation
 make services/cert-manager show
+# clone the default config file before editing
+cp config.defaults.mk config.local.mk
+# recommended: edit the KUBECONFIG path in config.local.mk:
+vim config.local.mk
 # looking good? apply it!
 make services/cert-manager apply
 ```
 
-There are two ways in which you could integrate the templates into your
+Check available services:
+```sh
+ls -l services/
+ls -l services/cert-manager/
+```
+As expected, all services reside inside this directory.
+Each service contains at least the `rules.mk` and `kustomization.yaml` files.
+
+The makefile will download / copy / generate the configuration descriptors
+(usually, .yaml files) inside the specific service's `generated/` directory:
+
+```sh
+ls -l services/cert-manager/generated/
+```
+
+Check out the source code (`rules.mk` and files) of your preferred services for
+more information about the scripts' operation and customization options.
+
+## Development flow
+
+Note that the scripts contained inside this repository are **templates**, aka:
+something to base your actual Kubernetes services configuration on!
+
+There are several ways in which you could integrate those scripts into your
 workflow:
 
 1. Forking / modifying in-place (faster but NOT recommended)
@@ -61,24 +92,21 @@ workflow:
   After cloning, simply edit the desired files (don't forget to create
   `config.local.mk`) and install your desired services.
 
-  Check available services:
-  ```sh
-  ls -l services/
-  ```
-
-2. Using as library / submodule
+2. Using as library / submodule (also check out the [samples](./samples/))
 
   If you want to have better configurability / flexibility for your cluster
   services and you wish to also remain in sync with [this] base repository,
   using it as submodule in a new project is your best choice:
-  
+
   ```sh
   # create your new project's repo
   mkdir my-k8s-services/ && cd my-k8s-services/
   git init
   git submodule add https://github.com/niflostancu/k8s-service-templates.git base/
+  # disregard sample & prefer inclusion against symlinks, more portable / syncable ;)
   echo 'include base/Makefile' > Makefile
   cp -f base/config.defaults.mk config.local.mk
+  git commit -m 'first commit: start of k8s configuration'
   ```
 
   Initialize / configure your services:

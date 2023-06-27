@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # note: cert-manager is automatically downloaded by the base template
+  - cert-manager.yaml
+  # these are new additions:
+  - example-issuer.yaml
+  - example-cert.yaml
+
