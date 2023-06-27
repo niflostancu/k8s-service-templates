@@ -25,7 +25,7 @@ base_rules=$(base_resource_dir)/rules.mk
 VPATH = $(abspath $(resource_dir)) $(base_resource_dir)
 
 # load user config
--include $(base_dir)/config.local.mk
+-include $(parent_dir)/config.local.mk
 
 # first rule => apply
 _: apply
