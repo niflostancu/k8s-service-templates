@@ -9,12 +9,14 @@
 # You can use it for the following services:
 #  - github.com: released assets (tagged versions);
 #  - raw.githubusercontent.com resources (version placeholders in tags);
-#  - hub.docker.com: for docker tags (TODO);
+#  - hub.docker.com: for docker tags (specify jq filtering using # in URL);
 #
 
 set -e
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &>/dev/null && pwd -P )
 
+# Use for debugging shell calls from make
+# echo "CALL: $*" >&2
 _fatal() { echo "$@" >&2; exit 2; }
 
 VERSION=
@@ -39,6 +41,7 @@ done
 declare -A SERVICES=(
 	["github.com"]="github"
 	["raw.githubusercontent.com"]="github_raw"
+	["hub.docker.com"]="docker_hub"
 )
 
 # Parses an URL fragment and returns each pair on a newline
@@ -99,18 +102,66 @@ function service:github:get_download_url() {
 
 # Github Raw download URL parser
 # Accepted formats:
-# - https://raw.githubusercontent.com/{namespace}/{repository}/{release*}-{VERSION}/...
-function service:github_raw:parse_url() {
-	service:github:parse_url "$@"
-	if [[ -n "$_URL_REST" ]]; then
-		local COMMIT=${_URL_REST%%/*}
-		if [[ "$COMMIT" == *"{VERSION}"* ]]; then
-			_VER_PREFIX=${COMMIT/{VERSION\}/}
-		fi
-	fi
-}
+# - https://raw.githubusercontent.com/{namespace}/{repository}/{VERSION}/...
+function service:github_raw:parse_url() { service:github:parse_url "$@"; }
 function service:github_raw:get_version() { service:github:get_version "$@"; }
 function service:github_raw:get_download_url() { service:github:get_download_url "$@"; }
+
+# Docker Hub latest tag query (via API v2)
+# Accepted formats:
+# - https://hub.docker.com/_/{repository}/#filter={VERSION}
+# - https://hub.docker.com/(r|repository/docker)/{namespace}/{repository}/#filter={VERSION}
+function service:docker_hub:parse_url() {
+	if [[ "$1" =~ ^https?://[^/]+/_/([^/#]+)(/[^#]*)? ]]; then
+		# official library
+		_NAMESPACE=library
+		_REPONAME="${BASH_REMATCH[1]}"
+		_URL_REST="${BASH_REMATCH[2]#/}"
+	elif [[ "$1" =~ ^https?://[^/]+/(r|repository/docker)/([^/]+)/([^#/]+)(/[^#]*)? ]]; then
+		# named project
+		_NAMESPACE="${BASH_REMATCH[2]}"
+		_REPONAME="${BASH_REMATCH[3]}"
+		_URL_REST="${BASH_REMATCH[4]#/}"
+	else
+		_fatal "Unable to parse URL: $1"
+	fi
+}
+function service:docker_hub:get_version() {
+	local API_URL="https://hub.docker.com/v2/namespaces/$_NAMESPACE/repositories/$_REPONAME/tags"
+	API_URL+="?page_size=100"
+	local HASH= PREFIX= SUFFIX= LONGEST= line=
+	if [[ "$1" == "--hash" ]]; then
+		HASH=1; shift
+	fi
+	while IFS= read -r line; do
+		case "$line" in
+			prefix=*|pfx=*) PREFIX=${line#*=}; ;;
+			suffix=*|sfx=*) SUFFIX=${line#*=}; ;;
+			longest|long) LONGEST=1; ;;
+		esac
+	done < <( parse_url_fragment "$1" )
+	local JQ_FILTERS=".results | map(select(.name != \"latest\"))"
+	[[ -z "$PREFIX" ]] || \
+		JQ_FILTERS+=" | map(select(.name|tostring|startswith(\"$PREFIX\")))"
+	[[ -z "$SUFFIX" ]] || \
+		JQ_FILTERS+=" | map(select(.name|tostring|endswith(\"$SUFFIX\")))"
+	# sort by date, desc + name length, asc
+	local JQ_SORTBY=".last_updated"
+	[[ -z "$LONGEST" ]] || JQ_SORTBY+=", (100-(.name|length))"
+	JQ_FILTERS+=" | sort_by($JQ_SORTBY) | reverse | first"
+	if [[ -n "$HASH" ]]; then
+		# remove hash prefix from the digest value (e.g., 'sha256:...')
+		JQ_FILTERS+=" | .digest | sub(\".*:\"; \"\")"
+	else
+		JQ_FILTERS+=" | .name"
+	fi
+	# echo "JQ FILTERS: $JQ_FILTERS">&2
+	curl --fail --show-error --silent "$API_URL" | jq -r "$JQ_FILTERS"
+}
+function service:docker_hub:get_download_url() {
+	_fatal "Docker Hub download not supported!"
+}
+
 
 URL="$1"
 FILENAME="$2"
