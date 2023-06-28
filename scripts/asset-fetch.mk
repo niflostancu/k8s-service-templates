@@ -17,12 +17,12 @@ asset_fetch_rules = $(foreach asset,$(FETCH_ASSETS),$(_asset_rule))
 
 # asset fetch script invocation macros
 asset_fetch_args ?=
-_asset_ver_file ?= $(if $(asset-version-file),--version-file=$(asset-version-file))
+_asset_ver_file ?= $(if $(asset-version-file),--version-file="$(asset-version-file)")
 _asset_ver_arg ?= $(if $(findstring latest,$(asset-version)),--latest,\
-					$(if $(asset-version),--version=$(asset-version),))
+					$(if $(asset-version),--version="$(asset-version)",))
 _asset_fetch_args ?= $(strip $(_asset_ver_arg) $(_asset_ver_file)) $(asset_fetch_args)
-download_asset = $(asset_fetch_script) $(_asset_fetch_args) --download $(asset-url)
-fetch_cached_version = $(asset_fetch_script) $(_asset_fetch_args) $(asset-url)
+download_asset = $(asset_fetch_script) $(_asset_fetch_args) --download "$(asset-url)"
+fetch_cached_version = $(asset_fetch_script) $(_asset_fetch_args) "$(asset-url)"
 fetch_latest_version = $(foreach asset-version,latest,$(fetch_cached_version))
 
 # internal values

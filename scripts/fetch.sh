@@ -20,12 +20,14 @@ _fatal() { echo "$@" >&2; exit 2; }
 VERSION=
 VERSION_FILE=
 GET_URL=
+GET_HASH=
 DOWNLOAD=
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--latest) VERSION=__latest ;;
 		--version=*) VERSION="${1#*=}" ;;
 		--version-file=*) VERSION_FILE="${1#*=}" ;;
+		--get-hash) GET_HASH=1 ;;
 		--get-url) GET_URL=1 ;;
 		--download) DOWNLOAD=1 ;;
 		-*) _fatal "Invalid argument: $1" ;;
@@ -39,33 +41,65 @@ declare -A SERVICES=(
 	["raw.githubusercontent.com"]="github_raw"
 )
 
-# Github routines
+# Parses an URL fragment and returns each pair on a newline
+# (easy to iterate using `read -r line`)
+# Accepted format: #key1=value;key2=value...
+function parse_url_fragment() {
+	local pair= PAIRS=()
+	if [[ "$1" =~ ^[^#]*#(.+)$ ]]; then
+		IFS=';' read -ra PAIRS <<< "${BASH_REMATCH[1]}"
+		for pair in "${PAIRS[@]}"; do
+			echo "$pair"
+		done
+	fi || true
+}
+
+# Parses a github URL
+# Accepted formats:
+# - https://github.com/{namespace}/{repository}/releases/download/{VERSION}/...
 function service:github:parse_url() {
-	local regexp="^https?://[^/]+/([^/]+/[^/]+)(/?.+)"
-	if [[ "$1" =~ $regexp ]]; then
+	if [[ "$1" =~ ^https?://[^/]+/([^/]+/[^/]+)(/?.+) ]]; then
 		_REPONAME="${BASH_REMATCH[1]}"
 		_URL_REST="${BASH_REMATCH[2]#/}"
-		if [[ "$_URL_REST" =~ /releases/download/([^/]+)/? ]]; then
-			_VER_PREFIX=${BASH_REMATCH[1]/{VERSION\}/}
-		fi
 	else
 		_fatal "Unable to parse URL: $1"
 	fi
 }
 function service:github:get_version() {
-	local JQ_MAP="select(.prerelease==false)"
-	local JQ_FILTER=""
-	if [[ -n "$_VER_PREFIX" ]]; then
-		JQ_MAP+=" | select(.tag_name|startswith(\"$_VER_PREFIX\"))"
-		JQ_FILTER+=" | sub(\"^$_VER_PREFIX\"; \"\")"
+	local API_URL="https://api.github.com/repos/$_REPONAME/releases" 
+	local HASH= PREFIX= SUFFIX= line=
+	if [[ "$1" == "--hash" ]]; then
+		HASH=1; shift
 	fi
-	curl --fail --show-error --silent "https://api.github.com/repos/$_REPONAME/releases" \
-		| jq -r 'map('"$JQ_MAP"') | first | .tag_name'"$JQ_FILTER"
+	while IFS= read -r line; do
+		case $line in
+			prefix=*|pfx=*) PREFIX=${line#*=}; ;;
+			suffix=*|sfx=*) SUFFIX=${line#*=}; ;;
+		esac
+	done < <( parse_url_fragment "$1" )
+	local JQ_FILTERS="map(select(.prerelease==false)) | [.[].tag_name]"
+	[[ -z "$PREFIX" ]] || \
+		JQ_FILTERS+=" | map(select(tostring|startswith(\"$PREFIX\")))"
+	[[ -z "$SUFFIX" ]] || \
+		JQ_FILTERS+=" | map(select(tostring|endswith(\"$SUFFIX\")))"
+	JQ_FILTERS+=" | first"
+	# echo "JQ FILTERS: $JQ_FILTERS">&2
+	local TAG=$(curl --fail --show-error --silent "$API_URL" | jq -r "$JQ_FILTERS")
+	if [[ -n "$HASH" ]]; then
+		# fetch commit SHA from the GH API
+		API_URL="https://api.github.com/repos/$_REPONAME/git/ref/tags/$TAG" 
+		curl --fail --show-error --silent "$API_URL" | jq -r ".object.sha"
+	else
+		echo -n "$TAG"
+	fi
 }
 function service:github:get_download_url() {
 	echo -n "${1/{VERSION\}/$_VERSION}"
 }
 
+# Github Raw download URL parser
+# Accepted formats:
+# - https://raw.githubusercontent.com/{namespace}/{repository}/{release*}-{VERSION}/...
 function service:github_raw:parse_url() {
 	service:github:parse_url "$@"
 	if [[ -n "$_URL_REST" ]]; then
@@ -90,21 +124,25 @@ service:$SERVICE:parse_url "$URL"
 
 # check if we need to retrieve the latest version
 _VERSION="$VERSION"
+_GET_VERSION_ARGS=()
 if [[ -z "$_VERSION" && -n "$VERSION_FILE" && -f "$VERSION_FILE" ]]; then
 	_VERSION="$(cat "$VERSION_FILE" | head -1)"
 fi
 if [[ -z "$_VERSION" || "$_VERSION" == "__latest" ]]; then
-	_VERSION=$(service:$SERVICE:get_version "$URL")
+	[[ -z "$GET_HASH" ]] || _GET_VERSION_ARGS=(--hash)
+	_VERSION=$(service:$SERVICE:get_version "${_GET_VERSION_ARGS[@]}" "$URL")
 	[[ -n "$_VERSION" ]] || _fatal "Could not determine a version for '$_NAME'" >&2
 fi
-DOWNLOAD_URL="$(service:$SERVICE:get_download_url "$URL")"
+
 if [[ "$GET_URL" == "1" ]]; then
+	DOWNLOAD_URL="$(service:$SERVICE:get_download_url "$URL")"
 	echo "$DOWNLOAD_URL"
 else
 	echo "$_VERSION"
 fi
 
 if [[ "$DOWNLOAD" == "1" ]]; then
+	DOWNLOAD_URL="$(service:$SERVICE:get_download_url "$URL")"
 	mkdir -p "$(dirname "$FILENAME")"
 	curl --fail --show-error --silent -L -o "$FILENAME" "$DOWNLOAD_URL"
 	if [[ -n "$VERSION_FILE" ]]; then
