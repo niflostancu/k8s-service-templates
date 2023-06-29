@@ -1,11 +1,7 @@
 # Makefile rules for 'ingress-nginx'
-
 APP_NAME = ingress-nginx
 # E.g.: override asset version
 #VERSION = v1.8.0
-
-KUSTOMIZE_ARGS ?=
-APPLY_ARGS ?=
 
 # configure the asset fetcher
 FETCH_ASSETS = ingress-nginx

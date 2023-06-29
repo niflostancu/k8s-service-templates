@@ -37,6 +37,8 @@ _: apply
 @debug:
 	@echo "base_dir = $(base_dir)"
 	@echo "gen_dir = $(gen_dir)"
+	@echo 
+	$(info $(ALL_RULES))
 	@$(MAKE) -r -p $(filter-out @debug,$(resource_dir))
 
 include $(base_dir)/scripts/asset-fetch.mk
