@@ -9,7 +9,7 @@ COPY_FILES ?= $(kustomize-src)
 
 _kustomize_copied ?= $(COPY_FILES:%=$(gen_dir)/%)
 _kustomize_reqs ?= $(asset_fetch_reqs) $(_kustomize_copied)
-
+# Main kustomization rules
 define kustomize_rules=
 .PHONY: apply show update delete
 show: $(_kustomize_reqs)
@@ -24,16 +24,24 @@ delete:
 	$(kubectl) delete -k $(gen_dir)/ | $(kube_apply)
 clean:
 	rm -rf "$(gen_dir)"
-# copy everything inside the generated directory
-$(foreach _file,$(COPY_FILES),$(kustomize_copy_rule))
 
 endef
 
+ALL_RULES += $(kustomize_rules)
+
+# Copies _file from a resource's src dir to gen_dir
 define kustomize_copy_rule=
 $(_file:%=$(gen_dir)/%): $(_file)
 	@mkdir -p "$$(dir $$(abspath $$@))"
 	cp -f "$$<" "$$@"
 
 endef
+# Copy files inside the generated directory
+define kustomize_copy_file_rules=
+$(foreach _file,$(COPY_FILES),$(kustomize_copy_rule))
 
-ALL_RULES += $(kustomize_rules)
+endef
+ALL_RULES += $(kustomize_copy_file_rules)
+
+# include extra k8s-related snippets
+include $(scripts_dir)/kustomize-snippets.mk

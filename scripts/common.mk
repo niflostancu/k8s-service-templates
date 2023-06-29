@@ -41,6 +41,6 @@ _: apply
 	$(info $(ALL_RULES))
 	@$(MAKE) -r -p $(filter-out @debug,$(resource_dir))
 
-include $(base_dir)/scripts/asset-fetch.mk
-include $(base_dir)/scripts/kustomize.mk
+include $(scripts_dir)/asset-fetch.mk
+include $(scripts_dir)/kustomize.mk
 

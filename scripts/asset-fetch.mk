@@ -64,15 +64,4 @@ version:=
 endef
 _asset_rule_ver=$(let version,$(_asset_read_version),$(_asset_rule))
 
-# macro for rules to generate asset file from make var template (using
-# expansion)
-define asset_generate_from_template=
-$($(1)): $(asset-version-file)
-	echo "$$$$$(2)" > $$@
-# export variables using simple expansion (to be expanded inside the asset's rule)
-$(2):=$$($(2))
-export $(2)
-
-endef
-
 ALL_RULES += $(asset_fetch_rules)
