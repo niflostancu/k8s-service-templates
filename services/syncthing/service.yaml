@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-web
+  labels:
+    app.kubernetes.io/name: syncthing
+spec:
+  selector:
+    app.kubernetes.io/name: syncthing
+  type: ClusterIP
+  ports:
+  - port: 8384
+    name: web-ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-protocol
+  labels:
+    app.kubernetes.io/name: syncthing
+spec:
+  selector:
+    app.kubernetes.io/name: syncthing
+  type: NodePort
+  ports:
+  - name: syncthing-tcp
+    port: 22000
+    protocol: TCP
+    nodePort: 22000
+  - name: syncthing-udp
+    port: 22000
+    protocol: UDP
+    nodePort: 22000
+  - name: syncthing-dsc
+    port: 21027
+    protocol: UDP
+    nodePort: 21027
+
