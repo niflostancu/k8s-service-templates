@@ -91,7 +91,7 @@ function service:github:get_version() {
 	if [[ -n "$HASH" ]]; then
 		# fetch commit SHA from the GH API
 		API_URL="https://api.github.com/repos/$_REPONAME/git/ref/tags/$TAG" 
-		curl --fail --show-error --silent "$API_URL" | jq -r ".object.sha"
+		curl --fail --show-error --silent "$API_URL" | jq -r ".object.sha[0:32]"
 	else
 		echo -n "$TAG"
 	fi
@@ -151,7 +151,7 @@ function service:docker_hub:get_version() {
 	JQ_FILTERS+=" | sort_by($JQ_SORTBY) | reverse | first"
 	if [[ -n "$HASH" ]]; then
 		# remove hash prefix from the digest value (e.g., 'sha256:...')
-		JQ_FILTERS+=" | .digest | sub(\".*:\"; \"\")"
+		JQ_FILTERS+=" | .digest | sub(\".*:\"; \"\") | .[0:32]"
 	else
 		JQ_FILTERS+=" | .name"
 	fi
