@@ -9,7 +9,8 @@ COPY_FILES += example-issuer.yaml example-cert.yaml
 # Rule for creating secrets (e.g., API keys)
 define cert_secrets_rules=
 secrets:
-	"$(scripts_dir)/prompt-secret.sh" example-cloudflare-api key $(NAMESPACE)
+	"$(scripts_dir)/prompt-secret.sh" example-cloudflare-api \
+		--namespace "$(NAMESPACE)" -p key
 
 endef
 
