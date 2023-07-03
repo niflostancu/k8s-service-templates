@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttrss
+  labels:
+    app.kubernetes.io/name: ttrss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ttrss
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ttrss
+    spec:
+      containers:
+      - name: "ttrss"
+        image: "ttrss:latest"
+        imagePullPolicy: "Always"
+        env:
+        - {name: "TZ", value: "GMT"}
+        - {name: "TTRSS_SELF_URL_PATH", value: "/" }
+        - {name: "TTRSS_DB_HOST", value: "postgres" }
+        - {name: "TTRSS_DB_TYPE", value: "pgsql" }
+        - {name: "TTRSS_DB_PORT", value: "5432" }
+        - {name: "TTRSS_DB_NAME", value: "ttrss" }
+        envFrom:
+        - secretRef:
+            name: ttrss-db-env
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 15
