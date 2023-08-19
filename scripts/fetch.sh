@@ -16,7 +16,6 @@ set -e
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &>/dev/null && pwd -P )
 
 # Use for debugging shell calls from make
-echo "CALL: $*" >&2
 _fatal() { echo "$@" >&2; exit 2; }
 
 VERSION=

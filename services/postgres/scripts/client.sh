@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simple psql client utility using kubectl exect
+# Simple psql client utility using kubectl exec
 set -e
 
 args="-i"

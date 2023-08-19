@@ -33,7 +33,7 @@ endef
 # Rules for running PostgreSQL administration scripts (using kubectl run)
 A = --help || echo "Please enter arguments using A=\"...\""
 define postgres_admin_rules=
-.PHONY: run_client create_user
+.PHONY: run_client create_db_user
 run_client: scripts/client.sh
 	"$$<"
 create_db_user: scripts/create-db-user.sh
