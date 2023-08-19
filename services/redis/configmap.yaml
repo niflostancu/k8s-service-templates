@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis
+  labels:
+    app.kubernetes.io/name: redis
+data:
+  redis.conf: |-
+    # minimal redis configuration example
+    # bind to all interfaces (don't worry, network is isolated by k8s)
+    bind * -::*
+    # disable protected mode
+    protected-mode no
+
