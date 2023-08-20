@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      # hide server info
+      server_tokens off;
+      proxy_hide_header X-Powered-By;
+
+      # optimizations
+      client_body_timeout 300s;
+      client_body_buffer_size 512k;
+      location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+      }
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: {name: nextcloud, port: {number: 80}}
+
