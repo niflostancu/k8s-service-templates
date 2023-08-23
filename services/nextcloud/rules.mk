@@ -28,5 +28,13 @@ secrets:
 
 endef
 
-ALL_RULES += $(nextcloud_secrets_rules)
+# Rules for running Nextcloud administration scripts (using kubectl run)
+A = --help || echo "Please enter arguments using A=\"...\""
+define nextcloud_admin_rules=
+.PHONY: cli
+cli: scripts/cli.sh
+	"$$<"
+endef
+
+ALL_RULES += $(nextcloud_secrets_rules) $(nextcloud_admin_rules)
 
