@@ -9,6 +9,14 @@ metadata:
       server_tokens off;
       proxy_hide_header X-Powered-By;
 
+      # fix service discovery
+      location /.well-known/carddav {
+        return 301 $scheme://$host/remote.php/dav;
+      }
+      location /.well-known/caldav {
+        return 301 $scheme://$host/remote.php/dav;
+      }
+
       # optimizations
       client_body_timeout 300s;
       client_body_buffer_size 512k;
