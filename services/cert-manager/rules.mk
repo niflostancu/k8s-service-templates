@@ -5,11 +5,12 @@ APP_NAME = cert-manager
 #VERSION = v1.11.0
 
 # assets used
-FETCH_ASSETS = cert-manager
+BUILD_ASSETS = cert-manager
 # Example to include extra files to the kustomization build
 #COPY_FILES += issuer-cloudflare.yaml tls-mydomains.yaml
 
 cert-manager = $(gen_dir)/cert-manager.yaml
+cert-manager-type = download
 cert-manager-url = https://github.com/cert-manager/cert-manager/releases/download/{VERSION}/cert-manager.yaml
 #cert-manager-ver = v1.11.0
 

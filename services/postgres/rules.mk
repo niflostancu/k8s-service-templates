@@ -3,20 +3,19 @@ APP_NAME = postgres
 NAMESPACE = default
 
 COPY_FILES += statefulset.yaml service.yaml
-FETCH_ASSETS += postgres
+BUILD_ASSETS += postgres
 
-postgres-manual = 1
-postgres-targets = $(postgres_image_transform_file) $(postgres_label_transform_file)
-postgres_image_transform_file = $(gen_dir)/transform-postgres-image-tags.yaml
-postgres_label_transform_file = $(gen_dir)/transform-postgres-labels.yaml
+postgres-type = fetch-version
 postgres-image = library/postgres
 postgres-url = https://hub.docker.com/r/$(postgres-image)\#prefix=15;suffix=alpine
+postgres-deps = $(postgres_image_transf) $(postgres_label_transf)
 
 # generate standard kustomize res. transformers (see kustomize-snippets.mk)
+postgres_image_transf = $(gen_dir)/transform-postgres-image-tags.yaml
+postgres_label_transf = $(gen_dir)/transform-postgres-labels.yaml
 define postgres-extra-rules=
-$(call asset_generate_from_template,postgres_label_transform_file,kust_label_transformer_tpl)
-$(call asset_generate_from_template,postgres_image_transform_file,kust_image_transformer_tpl)
-
+$(call asset_generate_from_template,postgres_label_transf,kust_label_transformer_tpl)
+$(call asset_generate_from_template,postgres_image_transf,kust_image_transformer_tpl)
 endef
 
 # Rule for creating database secrets
@@ -27,7 +26,6 @@ secrets:
 		--namespace "$(NAMESPACE)" \
 		-f POSTGRES_USER=postgres -p POSTGRES_PASSWORD \
 		-f POSTGRES_DB=postgres
-
 endef
 
 # Rules for running PostgreSQL administration scripts (using kubectl run)
@@ -40,5 +38,7 @@ create_db_user: scripts/create-db-user.sh
 	"$$<" $(A)
 endef
 
-ALL_RULES += $(postgres_secrets_rules) $(postgres_admin_rules)
-
+define ALL_RULES+=
+$(nl)$(postgres_secrets_rules)
+$(nl)$(postgres_admin_rules)
+endef

@@ -11,7 +11,6 @@ define cert_secrets_rules=
 secrets:
 	"$(scripts_dir)/prompt-secret.sh" example-cloudflare-api \
 		--namespace "$(NAMESPACE)" -p key
-
 endef
 
 ALL_RULES += $(cert_secrets_rules)
