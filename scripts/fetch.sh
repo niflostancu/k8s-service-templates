@@ -16,7 +16,10 @@ set -e
 BASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &>/dev/null && pwd -P )
 
 # Use for debugging shell calls from make
+_debug() { [[ -z "$DEBUG" ]] || echo "fetch.sh: DEBUG: $*" >&2; }
 _fatal() { echo "$@" >&2; exit 2; }
+
+_debug "args: $*"
 
 VERSION=
 VERSION_FILE=
@@ -177,11 +180,13 @@ _VERSION="$VERSION"
 _GET_VERSION_ARGS=()
 if [[ -z "$_VERSION" && -n "$VERSION_FILE" && -f "$VERSION_FILE" ]]; then
 	_VERSION="$(cat "$VERSION_FILE" | head -1)"
+	_debug "version: found in file: $_VERSION"
 fi
 if [[ -z "$_VERSION" || "$_VERSION" == "__latest" ]]; then
 	[[ -z "$GET_HASH" ]] || _GET_VERSION_ARGS=(--hash)
 	_VERSION=$(service:$SERVICE:get_version "${_GET_VERSION_ARGS[@]}" "$URL")
 	[[ -n "$_VERSION" ]] || _fatal "Could not determine a version for '$_NAME'" >&2
+	_debug "version: retrieved from service: $_VERSION"
 fi
 
 if [[ "$GET_URL" == "1" ]]; then
@@ -191,18 +196,26 @@ else
 	echo "$_VERSION"
 fi
 
+function cache_version() {
+	[[ -n "$VERSION_FILE" ]] || return 0
+	# prevent unneeded modification to keep makefile from re-building
+	local _CONTENTS=
+	[[ ! -f "$VERSION_FILE" ]] || _CONTENTS=$(cat "$VERSION_FILE" | head -1)
+	if [[ "$_CONTENTS" != "$1" ]]; then
+		mkdir -p "$(dirname "$VERSION_FILE")"
+		echo "$1" > "$VERSION_FILE"
+		_debug "version: cached '$1' to file!"
+	fi
+}
+
 if [[ "$DOWNLOAD" == "1" ]]; then
 	DOWNLOAD_URL="$(service:$SERVICE:get_download_url "$URL")"
+	_debug "downloading $DOWNLOAD_URL"
 	mkdir -p "$(dirname "$FILENAME")"
 	curl --fail --show-error --silent -L -o "$FILENAME" "$DOWNLOAD_URL"
-	if [[ -n "$VERSION_FILE" ]]; then
-		echo "$_VERSION" > "$VERSION_FILE"
-	fi
+	cache_version "$_VERSION"
 	echo "$FILENAME"
 else
-	if [[ -n "$VERSION_FILE" ]]; then
-		mkdir -p "$(dirname "$VERSION_FILE")"
-		echo "$_VERSION" > "$VERSION_FILE"
-	fi
+	cache_version "$_VERSION"
 fi
 
