@@ -33,35 +33,38 @@ asset-deps = $(if $($(asset)-deps),$($(asset)-deps),$($(asset)-targets))
 asset-extra-rules = $(if $($(asset)-extra-rules),$($(asset)-extra-rules))
 
 ## Utility macros to use in rules
+# check asset-specific variable if defined & not empty
+check-asset-var = $(if $(strip $($1)),,$(error $(asset): "$1" is not defined))
 # Sanity checks!
-_lib_asset_checks = $(call check-var,asset) $(call check-var,asset-type) \
-					$(call check-var,asset-target)
+_lib_asset_checks = $(call check-var,asset) $(call check-asset-var,asset-type) \
+					$(call check-asset-var,asset-target)
 # list of common asset vars to provide to all inner rules + macros
 lib_asset_common_vars = asset
 # common header: set asset-specific vars as immediates for rule expansion:
 define lib_asset_common_head =
-# header $(_lib_asset_checks) \
+# header $(strip $(_lib_asset_checks)) \
 $(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=$($(_var_))#)
 endef
 asset-assign-vars = $(foreach _var_,$(lib_asset_common_vars), \
 		$(nl)$(1): $(_var_)=$$($(_var_)))
 
 define lib_asset_common_tail=
-# append any extra rules $(check-var asset)
-$(asset-extra-rules)$(nl)
+$(if $(asset-extra-rules),# append any extra rules \
+	$(nl)$(asset-extra-rules)$(nl))
 # footer: reset common asset vars \
 $(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=#)
 endef
 
-# global dependencies (prereqs) for all declared assets
-LIB_ASSET_ALL_DEPS = $(foreach asset,$(BUILD_ASSETS),$(_lib_asset_deps_))
-_lib_asset__deps = LIB_ASSET[$(asset-type)]_DEPS
-_lib_asset_deps_ = $(call check-var,$(_lib_asset__deps))$($(_lib_asset__deps))
-
 # global rules for all declared assets
 LIB_ASSET_ALL_RULES = $(foreach asset,$(BUILD_ASSETS),$(nl)$(_lib_asset_rules_))
 _lib_asset__rules = LIB_ASSET[$(asset-type)]_RULES
-_lib_asset_rules_ = $(call check-var,$(_lib_asset__rules))$($(_lib_asset__rules))
+_lib_asset__rules_check = $(call check-var,LIB_ASSET[$(asset-type)]_RULES) \
+						  $(call check-var,LIB_ASSET[$(asset-type)]_DEPS)
+_lib_asset_rules_ = $($(_lib_asset__rules))$(strip $(_lib_asset__rules_check))
+
+# global dependencies (prereqs) for all declared assets
+LIB_ASSET_ALL_DEPS = $(foreach asset,$(BUILD_ASSETS),$(_lib_asset_deps_))
+_lib_asset_deps_ = $(LIB_ASSET[$(asset-type)]_DEPS)
 
 ALL_RULES += $(nl)\# BUILD_ASSETS: $(BUILD_ASSETS)
 ALL_RULES += $(nl)$(LIB_ASSET_ALL_RULES)

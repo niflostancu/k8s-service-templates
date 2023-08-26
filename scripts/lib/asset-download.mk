@@ -14,7 +14,9 @@ _asset_download_versioned = $(basename $(asset-download-dest))-$(version)$(suffi
 
 define _lib_asset_download_rules=
 # download asset rules:
-$(lib_asset_common_head)
+$(lib_asset_common_head) \
+	$(strip $(lib_asset_version_checks) $(call check-asset-var,asset-download-dest) \
+	$(call check-asset-var,asset-download-args))
 
 # target is a symlink to the versioned file
 # asset-target: $(asset-target) \

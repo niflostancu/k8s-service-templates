@@ -30,10 +30,15 @@ asset-fetch-version-arg = $(if $(UPDATE),--latest,$(if $(version),--version="$(v
 asset-version-read-val=$(if $(asset-version),$(asset-version),\
 	$(shell $(call asset_fetch_version,$(asset-version-args))))
 
+lib_asset_version_checks = $(call check-asset-var,asset-url) \
+		$(call check-asset-var,asset-fetch-version-arg) \
+		$(call check-asset-var,asset-version-meta-file)
+
 # rules template for version fetching
 define _lib_asset_version_rules=
 # fetch-version asset rules:
-$(lib_asset_common_head)
+$(lib_asset_common_head) \
+	$(strip $(lib_asset_version_checks))
 
 .PHONY: $(asset-target) \
 $(call asset-assign-vars,$(asset-target))
