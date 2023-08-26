@@ -30,7 +30,7 @@ $(_asset_download_versioned): $(asset-version-meta-file)
 	touch "$$@"
 
 $(lib_asset_version_target)
-$(nl)$(lib_asset_common_tail)
+$(lib_asset_common_tail)
 endef
 
 # cache the fetched version value

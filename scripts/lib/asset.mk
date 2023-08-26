@@ -53,6 +53,7 @@ $(if $(asset-extra-rules),# append any extra rules \
 	$(nl)$(asset-extra-rules)$(nl))
 # footer: reset common asset vars \
 $(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=#)
+
 endef
 
 # global rules for all declared assets

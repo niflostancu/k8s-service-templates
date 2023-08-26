@@ -44,7 +44,7 @@ $(lib_asset_common_head) \
 $(call asset-assign-vars,$(asset-target))
 $(asset-target): $(asset-deps) $(asset-version-meta-file)
 $(lib_asset_version_target)
-$(nl)$(lib_asset_common_tail)
+$(lib_asset_common_tail)
 endef
 
 # special rule with the $(version) expanded only once
@@ -55,8 +55,8 @@ LIB_ASSET[fetch-version]_DEPS=$(asset-target)
 LIB_ASSET[fetch-version]_RULES=$(_lib_asset_ver_rules_cached)
 
 # append the version parameter to the common rules
-# (non-conditionally, since it's pretty harmless)
-lib_asset_common_vars += version
+# (only when version is available)
+lib_asset_common_vars += $(if $(version),version)
 
 # utility target to write the version to a file
 define lib_asset_version_target=
