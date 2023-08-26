@@ -51,7 +51,7 @@ _: show
 
 ## === Include the whole build scripts library ===
 include $(scripts_dir)/lib/asset.mk
-include $(scripts_dir)/lib/copy.mk
+include $(scripts_dir)/lib/asset-copy.mk
 include $(scripts_dir)/lib/asset-version.mk
 include $(scripts_dir)/lib/asset-download.mk
 # include $(scripts_dir)/lib/docker-build.mk
