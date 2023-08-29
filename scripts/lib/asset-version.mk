@@ -12,6 +12,8 @@ asset-version-meta-file ?= $(gen_dir)/$(asset).version
 # custom fetch args
 asset-version-def-args ?= $(asset-fetch-def-args) 
 asset-version-args = $(if $($(asset)-ver-args),$($(asset)-ver-args),$(asset-version-def-args))
+# default fetch-version asset target is also the version meta file
+asset-fetch-version-target ?= $(asset-version-meta-file)
 
 ## === Asset version fetch implementation ===
 # Generic asset fetcher invocation macros
@@ -34,15 +36,19 @@ lib_asset_version_checks = $(call check-asset-var,asset-url) \
 		$(call check-asset-var,asset-fetch-version-arg) \
 		$(call check-asset-var,asset-version-meta-file)
 
+define _lib_asset_version_target_alias=
+$(call asset-assign-vars,$(asset-target))
+$(asset-target): $(asset-version-meta-file)
+	touch "$$@"
+endef
+
 # rules template for version fetching
 define _lib_asset_version_rules=
 # fetch-version asset rules:
-$(lib_asset_common_head) \
-	$(strip $(lib_asset_version_checks))
-
-.PHONY: $(asset-target) \
-$(call asset-assign-vars,$(asset-target))
-$(asset-target): $(asset-deps) $(asset-version-meta-file)
+$(lib_asset_common_head) $(strip \
+	$(lib_asset_version_checks))
+$(if $(filter-out $(asset-target),$(asset-version-meta-file)),\
+	$(nl)$(_lib_asset_version_target_alias)) \
 $(lib_asset_version_target)
 $(lib_asset_common_tail)
 endef
@@ -62,7 +68,7 @@ lib_asset_common_vars+=$(if $(version),version)
 define lib_asset_version_target=
 # target for asset version meta file: \
 $(call asset-assign-vars,$(asset-version-meta-file))
-$(asset-version-meta-file):
+$(asset-version-meta-file): $(asset-deps)
 	@mkdir -p "$$(@D)"
 	@$(call asset_fetch_version,$(asset-version-args))
 endef

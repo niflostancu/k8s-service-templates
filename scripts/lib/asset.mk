@@ -19,9 +19,8 @@ ASSET_FETCH_SCRIPT ?= "$(scripts_dir)/fetch.sh"
 ## === Generic asset variables ===
 ## (most are user-overridable and inherit global defaults)
 
-# generic target name for an asset; if `$(<asset name>)` is defined it will be used,
-# otherwise it will just be `<asset name>`
-asset-target = $(if $($(asset)),$($(asset)),$(asset))
+# The name of the asset's main target (to use for deps)
+asset-target = $(if $($(asset)),$($(asset)),$(asset-$(asset-type)-target))
 # Asset type, specify using <asset name>-type or ASSET_TYPE global
 asset-type = $(if $($(asset)-type),$($(asset)-type),$(if \
 		$($(asset)-manual),fetch-version,$(ASSET_TYPE)))
@@ -31,6 +30,11 @@ asset-url = $(if $($(asset)-url),$($(asset)-url),$(URL))
 asset-deps = $(if $($(asset)-deps),$($(asset)-deps),$($(asset)-targets))
 # Extra asset Makefile rules to append to the script
 asset-extra-rules = $(if $($(asset)-extra-rules),$($(asset)-extra-rules))
+
+## Property getters:
+get-asset-target = $(let asset,$1,$(asset-target))
+get-asset-url = $(let asset,$1,$(asset-url))
+get-asset-deps = $(let asset,$1,$(asset-deps))
 
 ## Utility macros to use in rules
 # check asset-specific variable if defined & not empty

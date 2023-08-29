@@ -7,9 +7,11 @@ COPY_FILES ?=
 
 # asset copy type-specific options:
 asset-copy-src ?= $(if $($(asset)-src),$($(asset)-src),$(asset-url))
-asset-copy-dest ?= $(if $($(asset)-dest),$(gen_dir)/$($(asset)-dest),$(asset-target))
+asset-copy-dest ?= $(if $($(asset)-dest),$($(asset)-dest),$(gen_dir)/$(asset))
 asset-copy-def-args ?= $(asset-fetch-def-args)
-asset-copy-args = $(if $($(asset)-args),$($(asset)-args),)
+asset-copy-args = $(if $($(asset)-args),$($(asset)-args),-f)
+# default copy asset target: use destination path
+asset-copy-target ?= $(asset-copy-dest)
 
 ## === Global rule generation macros (using COPY_FILES) ===
 
@@ -34,7 +36,8 @@ ALL_RULES += $(nl)$(nl)$(LIB_COPY_FILES_RULES_ALL)$(nl)
 ## === Asset rule generation macros (using `<asset>-type = copy`) ===
 
 define _lib_asset_copy_alias=
-$(asset-target): $(asset-deps) $(asset-copy-dest)
+$(asset-target): $(asset-copy-dest)
+	touch "$(asset-target)"
 endef
 
 define _lib_asset_copy_rules=
@@ -45,7 +48,7 @@ $(if $(filter-out $(asset-target),$(asset-copy-dest)),$(nl)$(_lib_asset_copy_ali
 $(call asset-assign-vars,$(asset-copy-dest))
 $(asset-copy-dest): $(asset-copy-src) $(asset-deps)
 	@mkdir -p "$$(dir $$(abspath $$@))"
-	cp -f "$$<" "$$@"
+	cp $(asset-copy-args) "$$<" "$$@"
 $(lib_asset_common_tail)
 endef
 
