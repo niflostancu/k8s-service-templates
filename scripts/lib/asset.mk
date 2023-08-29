@@ -45,8 +45,8 @@ define lib_asset_common_head =
 # header $(strip $(_lib_asset_checks)) \
 $(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=$($(_var_))#)
 endef
-asset-assign-vars = $(foreach _var_,$(lib_asset_common_vars), \
-		$(nl)$(1): $(_var_)=$$($(_var_)))
+asset-assign-vars = $(foreach _var_,$(strip $(lib_asset_common_vars)),\
+		$(nl)$(1): $(_var_):=$$($(_var_))#)
 
 define lib_asset_common_tail=
 $(if $(asset-extra-rules),# append any extra rules \
