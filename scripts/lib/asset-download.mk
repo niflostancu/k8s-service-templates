@@ -34,7 +34,7 @@ $(lib_asset_common_tail)
 endef
 
 # cache the fetched version value
-_lib_asset_download_rules_cached=$(let version,$(asset-version-read-val),$(_lib_asset_download_rules))
+_lib_asset_download_rules_cached=$(let version,$(call get-asset-version,$(asset)),$(_lib_asset_download_rules))
 
 # register the asset type
 LIB_ASSET[download]_DEPS=$(asset-target)

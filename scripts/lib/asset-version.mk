@@ -7,12 +7,11 @@
 ## === Common version fetcher options ===
 # user version overrides
 VERSION ?=
-asset-version ?= $(if $($(asset)-ver),$($(asset)-ver),$(VERSION))
-# asset version metadata file: <name>.version
+asset-version = $(if $($(asset)-ver),$($(asset)-ver),$(VERSION))
 asset-version-meta-file ?= $(gen_dir)/$(asset).version
 # custom fetch args
 asset-version-def-args ?= $(asset-fetch-def-args) 
-asset-version-args ?= $(if $($(asset)-ver-args),$($(asset)-ver-args),$(asset-version-def-args))
+asset-version-args = $(if $($(asset)-ver-args),$($(asset)-ver-args),$(asset-version-def-args))
 
 ## === Asset version fetch implementation ===
 # Generic asset fetcher invocation macros
@@ -25,10 +24,11 @@ asset-fetch-def-args = $(strip $(asset-fetch-version-arg) $(asset-fetch-cache-ar
 asset-fetch-cache-arg = $(if $(asset-version-meta-file),--version-file="$(asset-version-meta-file)")
 asset-fetch-version-arg = $(if $(UPDATE),--latest,$(if $(version),--version="$(version)",))
 
-# fetch the asset version into a Makefile variable
-# Note: cache this!
-asset-version-read-val=$(if $(asset-version),$(asset-version),\
+# fetches & caches the asset's version
+asset-version-invoke-script=$(if $(asset-version),$(asset-version),\
 	$(shell $(call asset_fetch_version,$(asset-version-args))))
+get-asset-version = $(strip $(if $(_$1-ver-cached),,$(eval _$1-ver-cached := 1)\
+	$(eval _$1-version := $(let asset,$1,$(asset-version-invoke-script))))$(_$1-version))
 
 lib_asset_version_checks = $(call check-asset-var,asset-url) \
 		$(call check-asset-var,asset-fetch-version-arg) \
@@ -48,7 +48,7 @@ $(lib_asset_common_tail)
 endef
 
 # special rule with the $(version) expanded only once
-_lib_asset_ver_rules_cached=$(let version,$(asset-version-read-val),$(_lib_asset_version_rules))
+_lib_asset_ver_rules_cached=$(let version,$(call get-asset-version,$(asset)),$(_lib_asset_version_rules))
 
 # register the asset type
 LIB_ASSET[fetch-version]_DEPS=$(asset-target)
@@ -56,7 +56,7 @@ LIB_ASSET[fetch-version]_RULES=$(_lib_asset_ver_rules_cached)
 
 # append the version parameter to the common rules
 # (only when version is available)
-lib_asset_common_vars += $(if $(version),version)
+lib_asset_common_vars+=$(if $(version),version)
 
 # utility target to write the version to a file
 define lib_asset_version_target=

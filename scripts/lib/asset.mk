@@ -43,7 +43,7 @@ lib_asset_common_vars = asset
 # common header: set asset-specific vars as immediates for rule expansion:
 define lib_asset_common_head =
 # header $(strip $(_lib_asset_checks)) \
-$(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=$($(_var_))#)
+$(foreach _var_,$(strip $(lib_asset_common_vars)),$(nl)$(_var_):=$($(_var_))#)
 endef
 asset-assign-vars = $(foreach _var_,$(strip $(lib_asset_common_vars)),\
 		$(nl)$(1): $(_var_):=$$($(_var_))#)
@@ -52,7 +52,7 @@ define lib_asset_common_tail=
 $(if $(asset-extra-rules),# append any extra rules \
 	$(nl)$(asset-extra-rules)$(nl))
 # footer: reset common asset vars \
-$(foreach _var_,$(lib_asset_common_vars),$(nl)$(_var_):=#)
+$(foreach _var_,$(strip $(lib_asset_common_vars)),$(nl)$(_var_):=#)
 
 endef
 
