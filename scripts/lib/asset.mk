@@ -32,9 +32,9 @@ asset-deps = $(if $($(asset)-deps),$($(asset)-deps),$($(asset)-targets))
 asset-extra-rules = $(if $($(asset)-extra-rules),$($(asset)-extra-rules))
 
 ## Property getters:
-get-asset-target = $(let asset,$1,$(asset-target))
+get-asset-target = $(foreach asset,$1,$(asset-target))
 get-asset-url = $(let asset,$1,$(asset-url))
-get-asset-deps = $(let asset,$1,$(asset-deps))
+get-asset-deps = $(foreach asset,$1,$(asset-deps))
 
 ## Utility macros to use in rules
 # check asset-specific variable if defined & not empty
