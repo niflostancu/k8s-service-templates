@@ -5,38 +5,41 @@
 ## Global: service name
 APP_NAME ?= $(if $(SERVICE_NAME),$(SERVICE_NAME),unknown)
 
-## scripts / binaries
-kubectl ?= kubectl $(kubectl_args)
-kustomize ?= kubectl kustomize $(kustomize_args)
-kube_apply ?= kubectl $(kubectl_args) apply -f -
-kustomize_args ?=
-# kustomize_args += --load-restrictor=none
-kubectl_args ?=
-
-# Kustomize target options
+# kustomize properties
 kustomize-src ?= kustomization.yaml
-kustomize-deps-all = $(LIB_COPY_FILES_DEPS_ALL) $(LIB_ASSET_ALL_DEPS)
-kustomize-deps ?= $(kustomize-deps-all)
+kustomize-dir ?= $(gen_dir)
+kustomize-target ?= $(kustomize-dir)/kustomization.yaml
+kustomize-deps ?= $(ALL_ASSET_DEPS)
+kustomize-args ?=
+# e.g., kustomize-args = --load-restrictor=none
 
-# copy kustomize descriptor to gen_dir
-COPY_FILES += $(kustomize-src)
+## scripts / binaries
+kubectl ?= kubectl
+kustomize ?= kubectl kustomize
+kube_apply ?= kubectl $(kubectl_args) apply -f -
+kubectl_args ?=
 
 # Main kustomization rules
 define LIB_KUSTOMIZE_RULES=
-.PHONY: apply show update delete
-show: $(kustomize-deps)
-	$(kustomize) $(gen_dir)/
-apply: $(kustomize-deps)
-	$(kustomize) $(gen_dir)/ | $(kube_apply)
+# Kustomize rules
+$(kustomize-target): $(kustomize-src)
+	@mkdir -p "$$(dir $$(abspath $$@))"
+	cp -f "$$<" "$$@"
+
+.PHONY: show apply update delete clean
+show: $(kustomize-target) $(kustomize-deps)
+	$(kustomize) $(kustomize-args) $(kustomize-dir)/
+apply: $(kustomize-target) $(kustomize-deps)
+	$(kustomize) $(kustomize-args) $(kustomize-dir)/ | $(kube_apply)
 update:
 	$$(MAKE) $(resource_dir) UPDATE=1 apply
+# removal rules:
 delete:
 	@read -p "Are you sure you want to delete $(APP_NAME)? [yN] " -n 1 -r; \
 		echo; [ $$$$REPLY = "y" ]
-	$(kubectl) delete -k $(gen_dir)/ | $(kube_apply)
+	$(kubectl) $(kubectl_args) delete -k $(kustomize-dir)/ | $(kube_apply)
 clean:
 	rm -rf "$(gen_dir)"
-
 endef
 
 ALL_RULES += $(nl)$(LIB_KUSTOMIZE_RULES)

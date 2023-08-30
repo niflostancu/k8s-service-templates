@@ -68,7 +68,7 @@ _lib_asset__rules_check = $(call check-var,LIB_ASSET[$(asset-type)]_RULES) \
 _lib_asset_rules_ = $($(_lib_asset__rules))$(strip $(_lib_asset__rules_check))
 
 # global dependencies (prereqs) for all declared assets
-LIB_ASSET_ALL_DEPS = $(foreach asset,$(BUILD_ASSETS),$(_lib_asset_deps_))
+ALL_ASSET_DEPS = $(foreach asset,$(BUILD_ASSETS),$(_lib_asset_deps_))
 _lib_asset_deps_ = $(LIB_ASSET[$(asset-type)]_DEPS)
 
 ALL_RULES += $(nl)\# BUILD_ASSETS: $(BUILD_ASSETS)
