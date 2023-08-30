@@ -4,8 +4,8 @@
 
 ## === Global variables ===
 # Specifies the assets to fetch / build
-FETCH_ASSETS?=# old name
-BUILD_ASSETS?=$(FETCH_ASSETS)
+FETCH_ASSETS ?= # old name
+BUILD_ASSETS ?= $(FETCH_ASSETS)
 # Global variable to force upgrading of assets
 UPDATE ?=
 

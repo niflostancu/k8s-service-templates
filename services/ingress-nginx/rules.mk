@@ -4,7 +4,7 @@ APP_NAME = ingress-nginx
 #VERSION = v1.8.0
 
 # configure the asset fetcher
-BUILD_ASSETS = ingress-nginx
+BUILD_ASSETS += ingress-nginx
 
 ingress-nginx = $(gen_dir)/ingress-nginx.yaml
 ingress-nginx-type = download

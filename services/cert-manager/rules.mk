@@ -5,7 +5,7 @@ APP_NAME = cert-manager
 #VERSION = v1.11.0
 
 # assets used
-BUILD_ASSETS = cert-manager
+BUILD_ASSETS += cert-manager
 # Example to include extra files to the kustomization build
 #COPY_FILES += issuer-cloudflare.yaml tls-mydomains.yaml
 
