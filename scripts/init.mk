@@ -20,14 +20,7 @@ MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
 ## === Utility Makefile macros ===
-# check variable if defined & not empty
-check-var = $(if $(strip $($1)),,$(error "$1" is not defined))
-# blank + new line values
-blank :=
-define nl
-$(blank)
-$(blank)
-endef
+include $(scripts_dir)/lib/utils.mk
 
 ## === Load user config overrides ===
 -include $(parent_dir)/config.local.mk

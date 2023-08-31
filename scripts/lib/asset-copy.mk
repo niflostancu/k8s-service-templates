@@ -14,6 +14,14 @@ asset-copy-args = $(if $($(asset)-args),$($(asset)-args),-f)
 # default copy asset target: use destination path
 asset-copy-target ?= $(asset-copy-dest)
 
+## Utility macros
+lib_normalize_res_path = $(sort $(call normalize-rel-paths,\
+		$(call normalize-dir-paths,$(abspath $(base_resource_dir)) $(abspath $(resource_dir)) \
+		$(base_resource_dir) $(resource_dir)), $(1)))
+get-resource-files = $(call lib_normalize_res_path,\
+		$(wildcard $(abspath $(base_resource_dir)/$(1))) \
+		$(wildcard $(abspath $(resource_dir)/$(1))))
+
 ## === Asset rule generation macros (using `<asset>-type = copy`) ===
 
 define _lib_asset_copy_alias=
