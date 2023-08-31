@@ -59,7 +59,13 @@ labels:
   app.kubernetes.io/digest: "$(call get-asset-digest,$(asset-kust-snippet-inherit))"
 fieldSpecs:
   - path: metadata/labels
+    create: true\
+$(foreach kind,Deployment ReplicaSet StatefulSet DaemonSet Job,$(nl)$(kust-snippet-label-path-spec-tpl))
+endef
+define kust-snippet-label-path-spec-tpl=
+  - path: spec/template/metadata/labels
     create: true
+    kind: $(kind)
 endef
 # backwards compatibility alias
 kust_label_transformer_tpl = $(kust-snippet-tpl@label-transformer)
