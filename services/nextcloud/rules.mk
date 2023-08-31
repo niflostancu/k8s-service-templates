@@ -19,8 +19,7 @@ nc-base-url = https://hub.docker.com/r/$(nc-base-image)\#$(URL_ARGS)
 # copy the docker src files into the resource's generated dir
 docker-files-type = copy
 docker-files = $(gen_dir)/image-cust/.copied
-docker-files-src = image-cust/
-docker-files-dest = $(gen_dir)/image-cust/
+docker-files-src = $(call get-resource-files,image-cust/**)
 docker-files-args = -r
 
 # build & push a customized docker image (derived from the one fetched above)
