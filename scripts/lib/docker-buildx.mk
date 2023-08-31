@@ -20,8 +20,10 @@ asset-docker-buildx-deploy = $(if $($(asset)-deploy),$($(asset)-deploy),push)
 asset-docker-buildx-target ?= $(asset-docker-buildx-digest-file)
 
 # asset digest trait
+# note: strip colon prefix + limit string to 32 characters (for k8s usage)
 asset-docker-buildx-digest = $(strip $(if $(_$(asset)-digest-cached),,$(eval _$(asset)-digest-cached := 1)\
-	$(eval _$(asset)-digest := $(shell cat $(asset-docker-buildx-digest-file))))$(_$(asset)-digest))
+	$(eval _$(asset)-digest := $(shell head -1 $(asset-docker-buildx-digest-file) |\
+		cut -d: -f2 | cut -c 1-60)))$(_$(asset)-digest))
 
 ## compute docker targets / CLI args
 _asset_docker_buildx_src = $(asset-docker-buildx-src)/$(asset-docker-buildx-file)
