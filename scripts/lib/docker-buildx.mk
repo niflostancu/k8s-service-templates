@@ -19,6 +19,10 @@ asset-docker-buildx-deploy = $(if $($(asset)-deploy),$($(asset)-deploy),push)
 # default docker buildx target: the build digest file
 asset-docker-buildx-target ?= $(asset-docker-buildx-digest-file)
 
+# asset digest trait
+asset-docker-buildx-digest = $(strip $(if $(_$(asset)-digest-cached),,$(eval _$(asset)-digest-cached := 1)\
+	$(eval _$(asset)-digest := $(shell cat $(asset-docker-buildx-digest-file))))$(_$(asset)-digest))
+
 ## compute docker targets / CLI args
 _asset_docker_buildx_src = $(asset-docker-buildx-src)/$(asset-docker-buildx-file)
 _asset_docker_buildx_digest_fetch = $(DOCKER_BIN) inspect --format='{{index .RepoDigests 0}}'

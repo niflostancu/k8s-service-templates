@@ -9,6 +9,8 @@
 VERSION ?=
 asset-version = $(if $($(asset)-ver),$($(asset)-ver),$(VERSION))
 asset-version-meta-file ?= $(gen_dir)/$(asset).version
+# asset digest property (type-specific, see below)
+asset-digest = $(if $($(asset)-digest),$($(asset)-digest),$(asset-$(asset-type)-digest))
 # custom fetch args
 asset-version-def-args ?= $(asset-fetch-def-args) 
 asset-version-args = $(if $($(asset)-ver-args),$($(asset)-ver-args),$(asset-version-def-args))
@@ -19,18 +21,21 @@ asset-fetch-version-target ?= $(asset-version-meta-file)
 # Generic asset fetcher invocation macros
 # use with $(call macro-name,script args...)
 asset_fetch_version = $(ASSET_FETCH_SCRIPT) $(1) "$(asset-url)"
-asset_fetch_ver_hash = $(ASSET_FETCH_SCRIPT) $(strip $(asset-fetch-cache-arg)) \
-				   --get-hash "$(asset-url)"
+asset_fetch_digest = $(ASSET_FETCH_SCRIPT) $(strip $(asset-fetch-cache-arg)) \
+		--get-hash "$(asset-url)"
 # default fetch script arguments
 asset-fetch-def-args = $(strip $(asset-fetch-version-arg) $(asset-fetch-cache-arg))
 asset-fetch-cache-arg = $(if $(asset-version-meta-file),--version-file="$(asset-version-meta-file)")
 asset-fetch-version-arg = $(if $(UPDATE),--latest,$(if $(version),--version="$(version)",))
-
-# fetches & caches the asset's version
+# asset version & digest properties
 asset-version-invoke-script=$(if $(asset-version),$(asset-version),\
 	$(shell $(call asset_fetch_version,$(asset-version-args))))
 get-asset-version = $(strip $(if $(_$1-ver-cached),,$(eval _$1-ver-cached := 1)\
 	$(eval _$1-version := $(let asset,$1,$(asset-version-invoke-script))))$(_$1-version))
+# asset digest (hash) special trait (available for some URL services only)
+get-asset-digest = $(let asset,$(1),$(asset-digest))
+asset-fetch-version-digest = $(strip $(if $(_$(asset)-digest-cached),,$(eval _$(asset)-digest-cached := 1)\
+	$(eval _$(asset)-digest := $(shell $(asset_fetch_digest))))$(_$(asset)-digest))
 
 lib_asset_version_checks = $(call check-asset-var,asset-url) \
 		$(call check-asset-var,asset-fetch-version-arg) \

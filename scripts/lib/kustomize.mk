@@ -6,6 +6,7 @@
 APP_NAME ?= $(if $(SERVICE_NAME),$(SERVICE_NAME),unknown)
 
 # kustomize properties
+kustomize-name ?= $(APP_NAME)
 kustomize-src ?= kustomization.yaml
 kustomize-dir ?= $(gen_dir)
 kustomize-target ?= $(kustomize-dir)/kustomization.yaml

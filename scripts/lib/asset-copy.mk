@@ -42,4 +42,4 @@ copy-files-src = $(COPY_FILES)
 copy-files-type = copy
 
 BUILD_ASSETS += $(if $(COPY_FILES),copy-files)
-
+DEFAULT_ASSETS += copy-files

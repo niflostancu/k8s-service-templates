@@ -6,6 +6,7 @@
 # Specifies the assets to fetch / build
 FETCH_ASSETS ?= # old name
 BUILD_ASSETS ?= $(FETCH_ASSETS)
+DEFAULT_ASSETS ?=
 # Global variable to force upgrading of assets
 UPDATE ?=
 
@@ -35,6 +36,9 @@ asset-extra-rules = $(if $($(asset)-extra-rules),$($(asset)-extra-rules))
 get-asset-target = $(foreach asset,$1,$(asset-target))
 get-asset-url = $(let asset,$1,$(asset-url))
 get-asset-deps = $(foreach asset,$1,$(asset-deps))
+# asset docker image special trait (for some URL services only)
+asset-docker-image = $(if $($(asset)-image),$($(asset)-image),$(asset-$(asset-type)-docker-image))
+get-asset-docker-image = $(let asset,$1,$(asset-docker-image))
 
 ## Utility macros to use in rules
 # check asset-specific variable if defined & not empty
