@@ -8,15 +8,13 @@ BUILD_ASSETS += redis
 redis-type = fetch-version
 redis-image = library/redis
 redis-url = https://hub.docker.com/r/$(redis-image)\#prefix=7.;suffix=alpine
-redis-deps = $(redis_image_transf) $(redis_label_transf)
 
-# generate standard kustomize res. transformers (see kustomize-snippets.mk)
-redis_image_transf = $(gen_dir)/transform-redis-image-tags.yaml
-redis_label_transf = $(gen_dir)/transform-redis-labels.yaml
-define redis-extra-rules=
-$(call asset_generate_from_template,redis_label_transf,kust_label_transformer_tpl)
-$(call asset_generate_from_template,redis_image_transf,kust_image_transformer_tpl)
-endef
+# generate standard kustomize resource transformers (see kustomize-snippets.mk)
+redis-image-transf = $(gen_dir)/transform-redis-image-tags.yaml
+redis-image-transf-type = kust-snippet@image-transformer
+redis-label-transf = $(gen_dir)/transform-redis-labels.yaml
+redis-label-transf-type = kust-snippet@label-transformer
+BUILD_ASSETS += redis-image-transf redis-label-transf
 
 # Rule for creating secrets (unused, for now)
 define redis_secrets_rules=

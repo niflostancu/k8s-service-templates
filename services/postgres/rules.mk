@@ -8,15 +8,13 @@ BUILD_ASSETS += postgres
 postgres-type = fetch-version
 postgres-image = library/postgres
 postgres-url = https://hub.docker.com/r/$(postgres-image)\#prefix=15;suffix=alpine
-postgres-deps = $(postgres_image_transf) $(postgres_label_transf)
 
-# generate standard kustomize res. transformers (see kustomize-snippets.mk)
-postgres_image_transf = $(gen_dir)/transform-postgres-image-tags.yaml
-postgres_label_transf = $(gen_dir)/transform-postgres-labels.yaml
-define postgres-extra-rules=
-$(call asset_generate_from_template,postgres_label_transf,kust_label_transformer_tpl)
-$(call asset_generate_from_template,postgres_image_transf,kust_image_transformer_tpl)
-endef
+# generate standard kustomize resource transformers (see kustomize-snippets.mk)
+postgres-image-transf = $(gen_dir)/transform-postgres-image-tags.yaml
+postgres-image-transf-type = kust-snippet@image-transformer
+postgres-label-transf = $(gen_dir)/transform-postgres-labels.yaml
+postgres-label-transf-type = kust-snippet@label-transformer
+BUILD_ASSETS += postgres-image-transf postgres-label-transf
 
 # Rule for creating database secrets
 define postgres_secrets_rules=
