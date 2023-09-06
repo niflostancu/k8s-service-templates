@@ -13,5 +13,9 @@ fi
 usermod -u "$NEXTCLOUD_UID" "$NEXTCLOUD_USER"
 groupmod -g "$NEXTCLOUD_GID" "$NEXTCLOUD_USER"
 
+if [[ -f "/etc/container.d/entry-extra.sh" ]]; then
+	bash /etc/container.d/entry-extra.sh
+fi
+
 exec "/entrypoint.sh" "$@"
 
