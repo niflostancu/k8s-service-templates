@@ -4,10 +4,13 @@ NAMESPACE = default
 
 COPY_FILES += statefulset.yaml service.yaml
 BUILD_ASSETS += postgres
+VERSION_PREFIX=15.
+VERSION_SUFFIX=-alpine
+URL_ARGS=prefix=$(VERSION_PREFIX);suffix=$(VERSION_SUFFIX)
 
 postgres-type = fetch-version
 postgres-image = library/postgres
-postgres-url = https://hub.docker.com/r/$(postgres-image)\#prefix=15;suffix=alpine
+postgres-url = https://hub.docker.com/r/$(postgres-image)\#$(URL_ARGS)
 
 # generate standard kustomize resource transformers (see kustomize-snippets.mk)
 postgres-image-transf = $(gen_dir)/transform-postgres-image-tags.yaml
