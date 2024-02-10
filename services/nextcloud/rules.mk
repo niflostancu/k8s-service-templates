@@ -25,7 +25,7 @@ docker-files-args = -r
 # build & push a customized docker image (derived from the one fetched above)
 docker-image-type = docker-buildx
 docker-image-ver = $(call get-asset-version,nc-base)
-docker-image-image = niflostancu/nextcloud-custom
+docker-image-image = $(DOCKER_IMAGE_PREFIX)nextcloud-custom
 docker-image-deps = $(call get-asset-target,nc-base docker-files)
 docker-image-src = $(gen_dir)/image-cust
 # push to repo; DISABLED BY DEFAULT (enable in your customization)

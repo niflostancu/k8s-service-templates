@@ -6,7 +6,7 @@ COPY_FILES += deployment.yaml ingress.yaml service.yaml
 BUILD_ASSETS += ttrss
 
 ttrss-type = fetch-version
-ttrss-image = niflostancu/ttrss
+ttrss-image = $(DOCKER_IMAGE_PREFIX)ttrss
 ttrss-url = https://hub.docker.com/r/$(ttrss-image)
 
 # generate standard kustomize resource transformers (see kustomize-snippets.mk)
