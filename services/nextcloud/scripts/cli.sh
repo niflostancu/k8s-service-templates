@@ -10,7 +10,7 @@ if [ -t 1 ] && [ -t 0 ]; then
     args+=' --tty'
 fi
 
-shell_cmd="su - www-data -s /usr/bin/bash $cli_args"
+shell_cmd="su www-data -s /usr/bin/bash $cli_args"
 
 # find the name of the pod
 POD=$(kubectl get pod -l app.kubernetes.io/name=nextcloud -o jsonpath="{.items[0].metadata.name}")
