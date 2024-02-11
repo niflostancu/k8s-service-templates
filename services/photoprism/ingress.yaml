@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: photoprism
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      # hide server info
+      server_tokens off;
+      proxy_hide_header X-Powered-By;
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /photos
+        pathType: Prefix
+        backend:
+          service: {name: photoprism, port: {number: 80}}
+

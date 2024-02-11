@@ -1,0 +1,93 @@
+---
+# Sample persistent volume & claim descriptors using local-storage driver to
+# provision the required photoprism volumes.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-originals
+  labels:
+    app.kubernetes.io/name: photoprism
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    # TODO: specify the host path to use as volume
+    path: /media/data/photoprism/originals
+  claimRef:
+    namespace: default
+    name: photoprism-originals
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                # TODO: change this to your node's hostname
+                - my-node1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: photoprism-originals
+  labels:
+    app.kubernetes.io/name: photoprism
+spec:
+  storageClassName: "local-storage"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+# Sample persistent volume & claim using local-storage driver to provision
+# a host path.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-storage
+  labels:
+    app.kubernetes.io/name: photoprism
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    # TODO: specify the host path to use as volume
+    path: /media/data/photoprism/storage
+  claimRef:
+    namespace: default
+    name: photoprism-storage
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                # TODO: change this to your node's hostname
+                - my-node1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: photoprism-storage
+  labels:
+    app.kubernetes.io/name: photoprism
+spec:
+  storageClassName: "local-storage"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+
