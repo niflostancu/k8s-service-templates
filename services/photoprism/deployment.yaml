@@ -33,7 +33,7 @@ spec:
         #- {name: "PHOTOPRISM_DATABASE_USER", value: "photoprism"}
         #- {name: "PHOTOPRISM_DATABASE_PASSWORD", value: "insecure"}
         # Run/install on first startup (options: update, gpu, tensorflow, davfs, clean):
-        - {name: "PHOTOPRISM_INIT", value: "update clean"}
+        - {name: "PHOTOPRISM_INIT", value: ""}
         # Run as a non-root user after initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
         #- {name: "PHOTOPRISM_UID", value: "1000"}
         #- {name: "PHOTOPRISM_GID", value: "1000"}
