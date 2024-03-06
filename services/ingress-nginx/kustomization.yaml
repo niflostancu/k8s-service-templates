@@ -4,3 +4,5 @@ kind: Kustomization
 resources:
   - ingress-nginx.yaml
 
+patches:
+  - { path: patch-jobs.json, target: {kind: Job} }
