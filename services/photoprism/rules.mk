@@ -5,11 +5,11 @@ NAMESPACE = default
 COPY_FILES += deployment.yaml ingress.yaml service.yaml
 BUILD_ASSETS += photoprism
 
-VERSION=latest
+VERSION_PREFIX=24
 
 photoprism-type = fetch-version
 photoprism-image = photoprism/photoprism
-photoprism-url = https://hub.docker.com/r/$(photoprism-image)\#prefix=$(VERSION)
+photoprism-url = https://hub.docker.com/r/$(photoprism-image)\#prefix=$(VERSION_PREFIX)
 
 # generate standard kustomize resource transformers (see kustomize-snippets.mk)
 photoprism-image-transf = $(gen_dir)/transform-photoprism-image-tags.yaml
