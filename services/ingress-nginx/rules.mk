@@ -3,7 +3,7 @@ APP_NAME = ingress-nginx
 # E.g.: override asset version
 #VERSION = v1.8.0
 
-COPY_FILES += patch-jobs.json
+COPY_FILES += patch-jobs.json patch-configmap.yaml
 
 # configure the asset fetcher
 BUILD_ASSETS += ingress-nginx
