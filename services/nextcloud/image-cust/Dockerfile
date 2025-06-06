@@ -1,6 +1,10 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
+ARG NEXTCLOUD_USER=www-data
+ARG NEXTCLOUD_UID=1000
+ARG NEXTCLOUD_GID=1000
+
 RUN apt-get update && apt-get install -y \
         supervisor vim-tiny less \
     && rm -rf /var/lib/apt/lists/* && \
@@ -8,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 
 ADD --chmod=755 entrypoint2.sh /entrypoint2.sh
 COPY supervisord.conf /etc
+
+RUN usermod -u "${NEXTCLOUD_UID}" "${NEXTCLOUD_USER}" && \
+    groupmod -g "${NEXTCLOUD_GID}" "${NEXTCLOUD_USER}"
 
 ENV NEXTCLOUD_UPDATE=1
 

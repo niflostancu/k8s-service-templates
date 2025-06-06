@@ -11,6 +11,10 @@ COPY_FILES += deployment.yaml ingress.yaml service.yaml
 # multi-stage asset build process
 BUILD_ASSETS += nc-base docker-files docker-image
 
+# default nextcloud build arguments
+NEXTCLOUD_UID = 1000
+NEXTCLOUD_GID = 1000
+
 # target to fetch the base image version data
 nc-base-type = fetch-version
 nc-base-image = library/nextcloud
@@ -32,7 +36,9 @@ docker-image-src = $(gen_dir)/image-cust
 #docker-image-push = 1
 #docker-image-platforms = $(DOCKER_DEFAULT_PLATFORMS)
 docker-image-tags = $(version) latest
-docker-image-args = --build-arg="BASE_IMAGE=$(nc-base-image):$(version)"
+docker-image-args = --build-arg="BASE_IMAGE=$(nc-base-image):$(version)" \
+		--build-arg="NEXTCLOUD_UID=$(NEXTCLOUD_UID)" \
+		--build-arg="NEXTCLOUD_GID=$(NEXTCLOUD_GID)"
 
 kustomize-inherit = docker-image
 kustomize-deps += $(call get-asset-target,nc-base copy-files docker-image nc-label-transf nc-image-transf)
