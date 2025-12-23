@@ -5,9 +5,12 @@ NAMESPACE = default
 COPY_FILES += deployment.yaml service.yaml configmap.yaml
 BUILD_ASSETS += redis
 
+redis-ver ?= 
+_redis_pfx = $(if $(redis-ver),prefix=$(redis-ver).;)
+
 redis-type = fetch-version
 redis-image = library/redis
-redis-url = https://hub.docker.com/r/$(redis-image)\#prefix=7.;suffix=alpine
+redis-url = https://hub.docker.com/r/$(redis-image)\#$(_redis_pfx);suffix=alpine
 
 # generate standard kustomize resource transformers (see kustomize-snippets.mk)
 redis-image-transf = $(gen_dir)/transform-redis-image-tags.yaml
