@@ -3,7 +3,7 @@ APP_NAME = nextcloud
 NAMESPACE = default
 
 # override it to fix the major version
-#VERSION_PREFIX=27.
+#VERSION_PREFIX=32.
 VERSION_SUFFIX=-apache
 URL_ARGS=prefix=$(VERSION_PREFIX);suffix=$(VERSION_SUFFIX)
 
