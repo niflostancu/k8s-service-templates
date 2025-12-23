@@ -33,8 +33,9 @@ endef
 A = --help || echo "Please enter arguments using A=\"...\""
 define postgres_admin_rules=
 .PHONY: run_client create_db_user
+run_client: A=
 run_client: scripts/client.sh
-	"$$<"
+	"$$<" $(A)
 create_db_user: scripts/create-db-user.sh
 	"$$<" $(A)
 endef

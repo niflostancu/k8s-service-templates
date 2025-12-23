@@ -2,6 +2,11 @@
 # Simple psql client utility using kubectl exec
 set -e
 
+RUN_SHELL=
+if [[ "$1" == "--shell" ]]; then
+    RUN_SHELL=1
+fi
+
 args="-i"
 psql_args=
 #args="--dry-run -o yaml"
@@ -12,7 +17,11 @@ else
     psql_args+=' -f-'
 fi
 
-shell_cmd="export PGPASSWORD=\$POSTGRES_PASSWORD; psql $psql_args -h postgres -U\$POSTGRES_USER"
+if [[ -n "$RUN_SHELL" ]]; then
+    shell_cmd="/bin/bash"
+else
+    shell_cmd="export PGPASSWORD=\$POSTGRES_PASSWORD; psql $psql_args -h postgres -U\$POSTGRES_USER"
+fi
 
 # find the name of the pod
 
