@@ -4,7 +4,7 @@ NAMESPACE = default
 
 COPY_FILES += statefulset.yaml service.yaml
 BUILD_ASSETS += postgres
-VERSION_PREFIX=15.
+VERSION_PREFIX=18.
 VERSION_SUFFIX=-alpine
 URL_ARGS=prefix=$(VERSION_PREFIX);suffix=$(VERSION_SUFFIX)
 
